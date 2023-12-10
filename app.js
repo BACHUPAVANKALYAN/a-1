@@ -16,7 +16,7 @@ const initializeDbAndserver = async () => {
       driver: sqlite3.Database,
     });
     app.listen(3000, () => {
-      console.log("Server Running at http://localhost:3000/");
+      console.log("Server is Running at http://localhost:3000/");
     });
   } catch (error) {
     console.log(`DB error is ${error.message}`);
@@ -187,7 +187,7 @@ app.get("agenda/", async (request, response) => {
   const { date } = request.query;
   console.log(isMatch(date, "yyyy-MM-dd"));
   if (isMatch(date, "yyyy-MM-dd")) {
-    const newdate = format(new Date(date), "yyyy-MM-date");
+    const newdate = format(new Date(date), "yyyy-MM-dd");
     console.log(newdate);
     const getdate = `SELECT * FROM todo WHERE due_date='${newdate}';`;
     const result = await db.all(getdate);
@@ -201,7 +201,7 @@ app.get("agenda/", async (request, response) => {
 app.post("/todos/", async (request, response) => {
   const { id, todo, priority, status, category, dueDate } = request.body;
   if (priority === "HIGH" || priority === "MEDIUM" || priority === "LOW") {
-    if (sattatus === "TO DO" || status === "IN PROGRESS" || status === "DONE") {
+    if (status === "TO DO" || status === "IN PROGRESS" || status === "DONE") {
       if (
         category === "HOME" ||
         category === "WORK" ||
@@ -209,7 +209,7 @@ app.post("/todos/", async (request, response) => {
       ) {
         if (isMatch(dueDate, "yyyy-MM-dd")) {
           const postnewdate = format(new Date(dueDate), "yyyy-MM-dd");
-          posttodoQuery = `INSERT INTO todo(id,todo,priority,status,category,due_date) VALUES (${id},'${todo}','${priority}','${status}','${category}','${postnewdate}';`;
+          const posttodoQuery = `INSERT INTO todo(id,todo,priority,status,category,due_date) VALUES (${id},'${todo}','${priority}','${status}','${category}','${postnewdate}';`;
           const postresult = await db.run(posttodoQuery);
           response.send("Todo Successfully Added");
         } else {
@@ -231,7 +231,7 @@ app.post("/todos/", async (request, response) => {
 });
 app.put("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
-  const updatecolumn = "";
+  let updatecolumn = "";
   const requestBody = request.body;
   console.log(requestBody);
   const previousQuery = `SELECT * FROM todo WHERE id=${todoId}`;
@@ -247,7 +247,7 @@ app.put("/todos/:todoId/", async (request, response) => {
   switch (true) {
     case requestBody.priority !== undefined:
       if (priority === "HIGH" || priority === "MEDIUM" || priority === "LOW") {
-        updateTodoQuery = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id='${todoId}';`;
+        updateTodoQuery = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id=${todoId};`;
         await db.run(updateTodoQuery);
         response.send("Priority Updated");
       } else {
@@ -258,7 +258,7 @@ app.put("/todos/:todoId/", async (request, response) => {
 
     case requestBody.status !== undefined:
       if (status === "TO DO" || status === "IN PROGRESS" || status === "DONE") {
-        updateTodoQuery = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id='${todoId}';`;
+        updateTodoQuery = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id=${todoId};`;
         await db.run(updateTodoQuery);
         response.send("Status Updated");
       } else {
@@ -273,7 +273,7 @@ app.put("/todos/:todoId/", async (request, response) => {
         category === "WORK" ||
         category === "LEARNING"
       ) {
-        updateTodoQuery = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id='${todoId};`;
+        updateTodoQuery = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id=${todoId};`;
         await db.run(updateTodoQuery);
         response.send("Category Updated");
       } else {
@@ -290,7 +290,7 @@ app.put("/todos/:todoId/", async (request, response) => {
     case requestBody.dueDate !== undefined:
       if (isMatch(dueDate, "yyyy-MM-dd")) {
         const newDate = format(new Date(dueDate), "yyyy-MM-dd");
-        const updateNewdate = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id='${todoId}';`;
+        const updateNewdate = `UPDATE todo SET todo='${todo}',priority='${priority}',status='${status}',category='${category}',due_date='${dueDate}' WHERE id=${todoId};`;
         await db.run(updateNewdate);
         response.send("Due Date Updated");
       } else {
@@ -302,7 +302,7 @@ app.put("/todos/:todoId/", async (request, response) => {
 });
 app.delete("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
-  const deletetodo = `DELETE FROM todo WHERE id='${todoId}';`;
+  const deletetodo = `DELETE FROM todo WHERE id=${todoId};`;
   const deltodo = await db.run(deletetodo);
   response.send("Todo Deleted");
 });
